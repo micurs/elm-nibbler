@@ -1,0 +1,46 @@
+@import '../node_modules/bootstrap/scss/bootstrap.scss';
+
+$ui-panel-h: 50px;
+$ui-panel-p: ($ui-panel-h / 4);
+$ui-panel-color: #333;
+$ui-panel-edge-color: #666;
+$play-panel-color: #222;
+$ui-text-color: #f0f0f0;
+$ui-text-hi-color: #f0f080;
+
+div.nibbler-canvas {
+  background-color: $play-panel-color;
+  flex: 1;
+  color: yellow;
+  width: 100%;
+}
+
+div.nibbler-title {
+  background-color: $ui-panel-color;
+  height: $ui-panel-h;
+  color: $ui-text-hi-color;
+  width: 100%;
+  text-align: center;
+  h1 {
+    font-weight: 400;
+    font-size: ($ui-panel-h / 2);
+    line-height: ($ui-panel-h - $ui-panel-p);
+    text-shadow: 2px 2px 2px rgba(0,0,0,0.8);
+  }
+}
+
+div.nibbler-scores {
+  background-color: $ui-panel-color;
+  height: $ui-panel-h;
+  color: $ui-text-color;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  div {
+    min-width: 250px;
+    padding: 8px 16px;
+    border-right: solid 1px $ui-panel-edge-color;
+    line-height: ($ui-panel-h - $ui-panel-p);
+    font-size: ($ui-panel-h / 4);
+  }
+}

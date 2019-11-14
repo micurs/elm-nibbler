@@ -1,0 +1,14 @@
+{
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 1000,
+  "elm.compiler": ".\\node_modules\\.bin\\elm",
+  "elm.makeCommand": ".\\node_modules\\.bin\\elm-make",
+  "elm.userProjectIntellisense": true,
+  "elm.showSuggestionsInElmSyntax": true,
+  "elm.includeUserFunctionDocumentation": true,
+  "[elm]": {
+    "editor.formatOnSave": true,
+  },
+  "editor.fontLigatures": true,
+  "editor.fontFamily": "Fira Code, 'Courier New', monospace"
+}
