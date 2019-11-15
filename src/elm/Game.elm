@@ -1,6 +1,7 @@
 module Game exposing
     ( GameStatus(..)
     , Position
+    , Size
     , begin
     , info
     , title

@@ -2,6 +2,8 @@ module Main exposing (main)
 
 import Browser
 import Game exposing (GameStatus)
+import GameEngine exposing (Action)
+import GameView exposing (renderGame)
 import Html exposing (Html, div, h1, h2, text)
 import Html.Attributes exposing (class, src, style)
 
@@ -10,13 +12,10 @@ import Html.Attributes exposing (class, src, style)
 ---- Model ----
 
 
-type Action
-    = Nothing
-    | Start
-
-
 type alias Model =
-    { gameStatus : GameStatus }
+    { gameStatus : GameStatus
+    , gameSize : Game.Size
+    }
 
 
 
@@ -25,7 +24,9 @@ type alias Model =
 
 init : flags -> ( Model, Cmd Action )
 init _ =
-    ( { gameStatus = Game.NewGame }
+    ( { gameStatus = Game.NewGame
+      , gameSize = { w = 51, h = 51 }
+      }
     , Cmd.none
     )
 
@@ -37,8 +38,15 @@ init _ =
 update : Action -> Model -> ( Model, Cmd Action )
 update action model =
     case action of
-        Start ->
-            ( { gameStatus = Game.Playing (Game.begin 20 20) 0 }, Cmd.none )
+        GameEngine.Start ->
+            let
+                xs =
+                    model.gameSize.w // 2
+
+                ys =
+                    model.gameSize.h // 2
+            in
+            ( { model | gameStatus = Game.Playing (Game.begin xs ys) 0 }, Cmd.none )
 
         _ ->
             ( model, Cmd.none )
@@ -53,30 +61,12 @@ scoreInfo gs =
     List.map (\s -> div [] [ text s ]) (Game.info gs)
 
 
-nibbler : List Game.Position -> List (Html Action)
-nibbler nibs =
-    List.map (\pos -> div [ class "nibbler-cell" ] []) nibs
-
-
-gameField : GameStatus -> List (Html Action)
-gameField gs =
-    case gs of
-        Game.Playing ns _ ->
-            nibbler ns.nibbler
-
-        Game.NewGame ->
-            [ text "Ready!" ]
-
-        Game.Over _ ->
-            [ text "Game Over" ]
-
-
 view : Model -> Html Action
 view model =
     div [ class "d-flex flex-column justify-content-center align-content-center", style "height" "100vh" ]
         [ div [ class "nibbler-title" ]
             [ h1 [] [ text (Game.title model.gameStatus) ] ]
-        , div [ class "nibbler-canvas" ] (gameField model.gameStatus)
+        , renderGame model.gameStatus model.gameSize
         , div [ class "nibbler-scores" ] (scoreInfo model.gameStatus)
         ]
 
