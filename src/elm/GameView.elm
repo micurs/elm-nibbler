@@ -34,29 +34,63 @@ nibblerHeadCell pos =
         []
 
 
-nibbler : List Game.Position -> List (Html Action)
-nibbler nibs =
-    List.map
-        nibblerHeadCell
-        nibs
+nibblerTail : List Game.Position -> List (Html Action)
+nibblerTail nibbs =
+    let
+        tail =
+            List.tail nibbs
+    in
+    case tail of
+        Just aTail ->
+            List.map (\c -> nibblerBodyCell c) aTail
+
+        Nothing ->
+            []
+
+
+nibblerHead : List Game.Position -> List (Html Action)
+nibblerHead nibs =
+    case List.head nibs of
+        Just cell ->
+            [ nibblerHeadCell cell ]
+
+        Nothing ->
+            []
+
+
+cheeseStar cheesePos =
+    case cheesePos of
+        Just pos ->
+            [ div
+                [ class "cheese"
+                , style "grid-column-start" (String.fromInt (pos.x - 1))
+                , style "grid-row-start" (String.fromInt (pos.y - 1))
+                , style "grid-column-end" (String.fromInt (pos.x + 2))
+                , style "grid-row-end" (String.fromInt (pos.y + 2))
+                ]
+                [ Html.text "🍪" ]
+            ]
+
+        Nothing ->
+            []
 
 
 gameField : GameStatus -> List (Html Action)
 gameField gs =
     case gs of
-        Game.Playing ns _ ->
-            nibbler ns.nibbler
+        Game.Playing ns ->
+            nibblerHead ns.nibbler ++ nibblerTail ns.nibbler ++ cheeseStar ns.cheese
 
         Game.NewGame ->
             [ text "Ready!" ]
 
-        Game.Over _ ->
-            [ text "Game Over" ]
+        Game.Over score ->
+            [ text ("Game Over: " ++ String.fromInt score ++ " points") ]
 
 
-renderGame : GameStatus -> Game.Size -> Html Action
-renderGame gs size =
-    div [ class "nibbler-game" ]
+renderGame : List (Html.Attribute Action) -> GameStatus -> Game.Size -> Html Action
+renderGame moreAttr gs size =
+    div ([ class "nibbler-game" ] ++ moreAttr)
         [ div
             [ class "nibbler-canvas"
             , style "grid-template-columns" "repeat(11);"

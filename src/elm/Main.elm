@@ -1,11 +1,16 @@
 module Main exposing (main)
 
 import Browser
-import Game exposing (GameStatus)
+import Browser.Events exposing (onKeyPress)
+import Game exposing (Direction, GameStatus, rollCoordinates)
 import GameEngine exposing (Action)
 import GameView exposing (renderGame)
 import Html exposing (Html, div, h1, h2, text)
 import Html.Attributes exposing (class, src, style)
+import Html.Events exposing (keyCode, on)
+import Json.Decode as Decode
+import Random
+import Time exposing (..)
 
 
 
@@ -15,6 +20,7 @@ import Html.Attributes exposing (class, src, style)
 type alias Model =
     { gameStatus : GameStatus
     , gameSize : Game.Size
+    , speed : Float
     }
 
 
@@ -25,7 +31,8 @@ type alias Model =
 init : flags -> ( Model, Cmd Action )
 init _ =
     ( { gameStatus = Game.NewGame
-      , gameSize = { w = 51, h = 51 }
+      , gameSize = { w = 41, h = 41 }
+      , speed = 200
       }
     , Cmd.none
     )
@@ -35,25 +42,71 @@ init _ =
 --- Update ----
 
 
+play : Maybe Game.Direction -> Model -> Model
+play mdir model =
+    case model.gameStatus of
+        Game.Playing ns ->
+            if ns.lifes > 0 then
+                { model | gameStatus = Game.Playing (Game.update mdir ns) }
+
+            else
+                { model | gameStatus = Game.Over ns.score }
+
+        Game.NewGame ->
+            { model | gameStatus = Game.Playing (Game.begin model.gameSize) }
+
+        Game.Over _ ->
+            model
+
+
+grow n model =
+    case model.gameStatus of
+        Game.Playing ns ->
+            { model | gameStatus = Game.Playing (Game.grow ns n) }
+
+        _ ->
+            model
+
+
+addCheese : Model -> ( Int, Int ) -> Model
+addCheese model cheesePos =
+    case model.gameStatus of
+        Game.Playing ns ->
+            case ns.cheese of
+                Nothing ->
+                    { model | gameStatus = Game.Playing (Game.addCheese ns cheesePos) }
+
+                _ ->
+                    model
+
+        _ ->
+            model
+
+
 update : Action -> Model -> ( Model, Cmd Action )
 update action model =
+    -- let
+    --     _ =
+    --         Debug.log "update: action = " action
+    -- in
     case action of
-        GameEngine.Start ->
-            let
-                xs =
-                    model.gameSize.w // 2
+        GameEngine.RollCheese ->
+            ( model, Random.generate GameEngine.AddCheese (rollCoordinates model.gameSize) )
 
-                ys =
-                    model.gameSize.h // 2
-            in
-            ( { model | gameStatus = Game.Playing (Game.begin xs ys) 0 }, Cmd.none )
+        GameEngine.AddCheese pos ->
+            ( addCheese model pos, Cmd.none )
+
+        GameEngine.StepUp n ->
+            ( { model | speed = model.speed - 20 }, Cmd.none )
+
+        GameEngine.Play mdir ->
+            ( play mdir model, Cmd.none )
+
+        GameEngine.Start mdir ->
+            ( { model | gameStatus = Game.NewGame }, Cmd.none )
 
         _ ->
             ( model, Cmd.none )
-
-
-
----- View ----
 
 
 scoreInfo : GameStatus -> List (Html Action)
@@ -63,11 +116,59 @@ scoreInfo gs =
 
 view : Model -> Html Action
 view model =
-    div [ class "d-flex flex-column justify-content-center align-content-center", style "height" "100vh" ]
+    div
+        [ class "d-flex flex-column justify-content-center align-content-center"
+        , style "height" "100vh"
+        ]
         [ div [ class "nibbler-title" ]
             [ h1 [] [ text (Game.title model.gameStatus) ] ]
-        , renderGame model.gameStatus model.gameSize
+        , renderGame [] model.gameStatus model.gameSize
         , div [ class "nibbler-scores" ] (scoreInfo model.gameStatus)
+        ]
+
+
+
+---- SUBSCRIPTIONS ----
+
+
+toDirection : String -> Action
+toDirection k =
+    let
+        key =
+            String.uncons k
+    in
+    case key of
+        Just ( 'w', _ ) ->
+            GameEngine.Play (Just Game.Up)
+
+        Just ( 'x', _ ) ->
+            GameEngine.Play (Just Game.Down)
+
+        Just ( 's', _ ) ->
+            GameEngine.Play (Just Game.Down)
+
+        Just ( 'a', _ ) ->
+            GameEngine.Play (Just Game.Left)
+
+        Just ( 'd', _ ) ->
+            GameEngine.Play (Just Game.Right)
+
+        _ ->
+            GameEngine.Play Nothing
+
+
+keyDecoder : Decode.Decoder Action
+keyDecoder =
+    Decode.map toDirection (Decode.field "key" Decode.string)
+
+
+subscriptions : Model -> Sub Action
+subscriptions model =
+    Sub.batch
+        [ onKeyPress keyDecoder
+        , Time.every model.speed (\t -> GameEngine.Play Nothing)
+        , Time.every 10000 (\t -> GameEngine.StepUp 1)
+        , Time.every 1000 (\t -> GameEngine.RollCheese)
         ]
 
 
@@ -81,5 +182,5 @@ main =
         { view = view
         , init = init
         , update = update
-        , subscriptions = always Sub.none
+        , subscriptions = subscriptions
         }
