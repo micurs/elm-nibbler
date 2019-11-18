@@ -1,1 +1,4 @@
-elm-nibbler
+# elm-nibbler
+
+![Nibbler](game.jpg "Nibbler in Elm")
+

@@ -138,6 +138,9 @@ toDirection k =
             String.uncons k
     in
     case key of
+        Just ( 'p', _ ) ->
+            GameEngine.Play (Just Game.Still)
+
         Just ( 'w', _ ) ->
             GameEngine.Play (Just Game.Up)
 

@@ -68,7 +68,7 @@ cheeseStar cheesePos =
                 , style "grid-column-end" (String.fromInt (pos.x + 2))
                 , style "grid-row-end" (String.fromInt (pos.y + 2))
                 ]
-                [ Html.text "🍪" ]
+                [ Html.text "🍕" ]
             ]
 
         Nothing ->

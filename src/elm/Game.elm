@@ -28,6 +28,7 @@ type Direction
     | Down
     | Left
     | Right
+    | Still
 
 
 type alias Score =
@@ -85,6 +86,9 @@ newLife ns =
 
 actualDirection currDir newDir =
     case currDir of
+        Still ->
+            newDir
+
         Up ->
             if newDir == Down then
                 Up
@@ -117,6 +121,9 @@ actualDirection currDir newDir =
 calcNewHead : Direction -> Position -> Position
 calcNewHead dir pos =
     case dir of
+        Still ->
+            pos
+
         Up ->
             { x = pos.x, y = pos.y - 1 }
 
@@ -171,7 +178,10 @@ calcNibbler ns direction =
         shouldDie =
             outOfField || selfHit
     in
-    if shouldDie then
+    if direction == Still then
+        ( ns.nibbler, False )
+
+    else if shouldDie then
         ( ns.nibbler, shouldDie )
 
     else
