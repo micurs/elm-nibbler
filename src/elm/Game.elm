@@ -52,19 +52,34 @@ type GameStatus
     | Over Score
 
 
+areEqualPosition : Position -> Position -> Bool
+areEqualPosition p1 p2 =
+    p1.x == p2.x && p1.y == p2.y
+
+
+positionFromTuple : ( Int, Int ) -> Position
+positionFromTuple tp =
+    { x = Tuple.first tp, y = Tuple.second tp }
+
+
 rollCoordinates : Size -> Random.Generator ( Int, Int )
 rollCoordinates size =
     Random.pair (Random.int 2 (size.w - 2)) (Random.int 2 (size.h - 2))
 
 
-buildNibblerHead : Size -> Position
-buildNibblerHead size =
+positionInTheMiddle : Size -> Position
+positionInTheMiddle size =
     { x = size.w // 2, y = size.h // 2 }
+
+
+buildNibblerHead : Size -> Position
+buildNibblerHead =
+    positionInTheMiddle
 
 
 begin : Size -> NibblerStatus
 begin size =
-    { nibbler = [ { x = size.w // 2, y = size.h // 2 } ]
+    { nibbler = [ positionInTheMiddle size ]
     , lifes = 3
     , size = size
     , length = 30
@@ -77,7 +92,7 @@ begin size =
 newLife : NibblerStatus -> NibblerStatus
 newLife ns =
     { ns
-        | nibbler = [ { x = ns.size.w // 2, y = ns.size.h // 2 } ]
+        | nibbler = [ positionInTheMiddle ns.size ]
         , lifes = ns.lifes - 1
         , length = 30
         , direction = Up
@@ -154,8 +169,6 @@ outOfBoundary size pos =
 calcNibbler : NibblerStatus -> Direction -> ( List Position, Bool )
 calcNibbler ns direction =
     let
-        -- _ =
-        --     Debug.log "calcNibbler length: " ns.nibbler
         newHead =
             case List.head ns.nibbler of
                 Just pos ->
@@ -172,7 +185,7 @@ calcNibbler ns direction =
 
         selfHit =
             List.any
-                (\c -> c.x == newHead.x && c.y == newHead.y)
+                (areEqualPosition newHead)
                 newTail
 
         shouldDie =
@@ -198,7 +211,7 @@ checkHitCheese nibbler cheese =
         Just head ->
             case cheese of
                 Just pos ->
-                    head.x == pos.x && head.y == pos.y
+                    areEqualPosition pos head
 
                 Nothing ->
                     False
@@ -254,7 +267,7 @@ addCheese : NibblerStatus -> ( Int, Int ) -> NibblerStatus
 addCheese ns cheesePos =
     case ns.cheese of
         Nothing ->
-            { ns | cheese = Just { x = Tuple.first cheesePos, y = Tuple.second cheesePos } }
+            { ns | cheese = Just (positionFromTuple cheesePos) }
 
         Just _ ->
             ns

@@ -4,9 +4,9 @@ import Game exposing (Direction)
 
 
 type Action
-    = Nothing
+    = NoOp
     | Start (Maybe Direction)
     | Play (Maybe Direction)
-    | StepUp Int
+    | SpeedUp Int
     | RollCheese
     | AddCheese ( Int, Int )

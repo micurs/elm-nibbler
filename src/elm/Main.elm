@@ -85,10 +85,6 @@ addCheese model cheesePos =
 
 update : Action -> Model -> ( Model, Cmd Action )
 update action model =
-    -- let
-    --     _ =
-    --         Debug.log "update: action = " action
-    -- in
     case action of
         GameEngine.RollCheese ->
             ( model, Random.generate GameEngine.AddCheese (rollCoordinates model.gameSize) )
@@ -96,8 +92,8 @@ update action model =
         GameEngine.AddCheese pos ->
             ( addCheese model pos, Cmd.none )
 
-        GameEngine.StepUp n ->
-            ( { model | speed = model.speed - 20 }, Cmd.none )
+        GameEngine.SpeedUp n ->
+            ( { model | speed = model.speed - model.speed * 0.1 }, Cmd.none )
 
         GameEngine.Play mdir ->
             ( play mdir model, Cmd.none )
@@ -165,13 +161,43 @@ keyDecoder =
     Decode.map toDirection (Decode.field "key" Decode.string)
 
 
+animate : Model -> Sub Action
+animate model =
+    case model.gameStatus of
+        Game.Playing _ ->
+            Time.every model.speed (\_ -> GameEngine.Play Nothing)
+
+        _ ->
+            Sub.none
+
+
+speedUp : Model -> Sub Action
+speedUp model =
+    case model.gameStatus of
+        Game.Playing _ ->
+            Time.every 10000 (\_ -> GameEngine.SpeedUp 1)
+
+        _ ->
+            Sub.none
+
+
+placeCheese : Model -> Sub Action
+placeCheese model =
+    case model.gameStatus of
+        Game.Playing _ ->
+            Time.every 1000 (\_ -> GameEngine.RollCheese)
+
+        _ ->
+            Sub.none
+
+
 subscriptions : Model -> Sub Action
 subscriptions model =
     Sub.batch
         [ onKeyPress keyDecoder
-        , Time.every model.speed (\t -> GameEngine.Play Nothing)
-        , Time.every 10000 (\t -> GameEngine.StepUp 1)
-        , Time.every 1000 (\t -> GameEngine.RollCheese)
+        , animate model
+        , speedUp model
+        , placeCheese model
         ]
 
 

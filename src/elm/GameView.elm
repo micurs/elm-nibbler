@@ -6,21 +6,45 @@ import Html exposing (Html, div, h1, h2, text)
 import Html.Attributes exposing (class, src, style)
 
 
-canvasStyleW : Int -> Html.Attribute Action
-canvasStyleW w =
+
+---- Grid style utilities
+
+
+styleGridWidth : Int -> Html.Attribute Action
+styleGridWidth w =
     style "grid-template-columns" ("repeat(" ++ String.fromInt w ++ ", 1fr);")
 
 
-canvasStyleH : Int -> Html.Attribute Action
-canvasStyleH h =
+styleGridHeight : Int -> Html.Attribute Action
+styleGridHeight h =
     style "grid-template-row" ("repeat(" ++ String.fromInt h ++ ", 1fr);")
+
+
+styleGridStartX x =
+    style "grid-column-start" (String.fromInt x)
+
+
+styleGridStartY y =
+    style "grid-row-start" (String.fromInt y)
+
+
+styleGridEndX x =
+    style "grid-column-end" (String.fromInt x)
+
+
+styleGridEndY y =
+    style "grid-row-end" (String.fromInt y)
+
+
+
+---- Nibbler HTML elements
 
 
 nibblerBodyCell pos =
     div
         [ class "nibbler-cell"
-        , style "grid-column-start" (String.fromInt pos.x)
-        , style "grid-row-start" (String.fromInt pos.y)
+        , styleGridStartX pos.x
+        , styleGridStartY pos.y
         ]
         []
 
@@ -28,8 +52,8 @@ nibblerBodyCell pos =
 nibblerHeadCell pos =
     div
         [ class "nibbler-cell head"
-        , style "grid-column-start" (String.fromInt pos.x)
-        , style "grid-row-start" (String.fromInt pos.y)
+        , styleGridStartX pos.x
+        , styleGridStartY pos.y
         ]
         []
 
@@ -42,7 +66,7 @@ nibblerTail nibbs =
     in
     case tail of
         Just aTail ->
-            List.map (\c -> nibblerBodyCell c) aTail
+            List.map nibblerBodyCell aTail
 
         Nothing ->
             []
@@ -63,10 +87,10 @@ cheeseStar cheesePos =
         Just pos ->
             [ div
                 [ class "cheese"
-                , style "grid-column-start" (String.fromInt (pos.x - 1))
-                , style "grid-row-start" (String.fromInt (pos.y - 1))
-                , style "grid-column-end" (String.fromInt (pos.x + 2))
-                , style "grid-row-end" (String.fromInt (pos.y + 2))
+                , styleGridStartX (pos.x - 1)
+                , styleGridStartY (pos.y - 1)
+                , styleGridEndX (pos.x + 2)
+                , styleGridEndY (pos.y + 2)
                 ]
                 [ Html.text "🍕" ]
             ]
@@ -94,8 +118,8 @@ renderGame moreAttr gs size =
         [ div
             [ class "nibbler-canvas"
             , style "grid-template-columns" "repeat(11);"
-            , canvasStyleW size.w
-            , canvasStyleH size.h
+            , styleGridWidth size.w
+            , styleGridHeight size.h
             ]
             (gameField gs)
         ]
