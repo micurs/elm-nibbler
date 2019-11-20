@@ -49,6 +49,7 @@ type alias NibblerStatus =
 type GameStatus
     = NewGame
     | Playing NibblerStatus
+    | Pause NibblerStatus
     | Over Score
 
 
@@ -220,8 +221,8 @@ checkHitCheese nibbler cheese =
             False
 
 
-updateNibbler : Direction -> NibblerStatus -> NibblerStatus
-updateNibbler newDirection ns =
+updateNibbler : NibblerStatus -> Direction -> NibblerStatus
+updateNibbler ns newDirection =
     let
         direction =
             actualDirection ns.direction newDirection
@@ -253,7 +254,7 @@ updateNibbler newDirection ns =
             | nibbler = newNibbler
             , direction = direction
             , length = ns.length + growth
-            , score = ns.score + growth
+            , score = ns.score + growth * ns.length
             , cheese =
                 if hitTheCheese then
                     Nothing
@@ -280,25 +281,24 @@ grow ns n =
 
 update : Maybe Direction -> NibblerStatus -> NibblerStatus
 update mdir ns =
-    case mdir of
-        Just dir ->
-            updateNibbler dir ns
-
-        _ ->
-            updateNibbler ns.direction ns
+    updateNibbler ns <|
+        Maybe.withDefault ns.direction mdir
 
 
 title : GameStatus -> String
 title x =
     case x of
         NewGame ->
-            "Welcome to Nibbler with Elm! Press any arrow key to start"
+            "Welcome to Elm-Nibbler! Press the \"w\" to start"
 
         Over score ->
-            "Thank you for playng Nibbler with Elm! Your final score is " ++ String.fromInt score
+            "Thank you for playng Elm-Nibbler!"
 
         Playing ns ->
             "Nibbler with Elm: Your current score is " ++ String.fromInt ns.score
+
+        _ ->
+            "Welcome to Elm-Nibbler! Press the \"w\" to start"
 
 
 info : GameStatus -> List String
@@ -314,3 +314,6 @@ info x =
             [ "Curren Score: " ++ String.fromInt ns.score ++ " pts"
             , "Remaining Lifes: " ++ String.fromInt ns.lifes
             ]
+
+        _ ->
+            []

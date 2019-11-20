@@ -3,14 +3,18 @@
 $ui-size: 700px;
 $ui-panel-h: 50px;
 $ui-panel-p: ($ui-panel-h / 4);
-$ui-panel-color: #333;
-$ui-panel-edge-color: #666;
-$play-panel-color: #222;
+$ui-panel-color: #336;
+$ui-panel-edge-color: #556;
+$play-panel-color: #113;
 $ui-text-color: #f0f0f0;
 $ui-text-hi-color: #f0f080;
 
 $nibbler-bg-color: blue;
 $nibbler-bd-color: #666;
+
+body {
+  font-family: 'Courier New', Courier, monospace;
+}
 
 div.nibbler-game {
   flex: 1;
@@ -19,6 +23,8 @@ div.nibbler-game {
   display: flex;
   align-items: center;
   div.nibbler-canvas {
+    border: solid 1px $ui-panel-edge-color;
+    box-shadow: 0 0 16px 8px black;
     width: $ui-size;
     height: $ui-size;
     margin: auto;
@@ -30,6 +36,18 @@ div.nibbler-game {
     grid-column-gap: 3px;
     grid-row-gap: 3px;
     align-items: center;
+
+    div.message {
+      grid-row-start: 1;
+      grid-row-end: 40;
+      grid-column-start: 1;
+      grid-column-end: 41;
+      justify-self: center;
+      align-self: center;
+      font-size: 24px;
+      line-height: 1;
+      text-align: center;
+    }
 
     div.cheese {
       place-self: center center;
@@ -61,7 +79,7 @@ div.nibbler-title {
   h1 {
     font-weight: 400;
     font-size: ($ui-panel-h / 2);
-    line-height: ($ui-panel-h - $ui-panel-p);
+    line-height: $ui-panel-h;
     text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.8);
   }
 }

@@ -2,7 +2,7 @@ module GameView exposing (renderGame)
 
 import Game exposing (GameStatus)
 import GameEngine exposing (Action)
-import Html exposing (Html, div, h1, h2, text)
+import Html exposing (Html, div, h1, h2, p, text)
 import Html.Attributes exposing (class, src, style)
 
 
@@ -99,17 +99,35 @@ cheeseStar cheesePos =
             []
 
 
+paintNibbler ns =
+    nibblerHead ns.nibbler ++ nibblerTail ns.nibbler ++ cheeseStar ns.cheese
+
+
 gameField : GameStatus -> List (Html Action)
 gameField gs =
     case gs of
         Game.Playing ns ->
-            nibblerHead ns.nibbler ++ nibblerTail ns.nibbler ++ cheeseStar ns.cheese
+            paintNibbler ns
 
         Game.NewGame ->
-            [ text "Ready!" ]
+            [ div [ class "message" ]
+                [ p [] [ text "Ready!" ]
+                , p [] [ text "Use a,d and w,s to change direction" ]
+                ]
+            ]
 
         Game.Over score ->
-            [ text ("Game Over: " ++ String.fromInt score ++ " points") ]
+            [ div [ class "message" ]
+                [ text ("Game Over: " ++ String.fromInt score ++ " points") ]
+            ]
+
+        Game.Pause ns ->
+            paintNibbler ns
+                ++ [ div [ class "message" ]
+                        [ p [] [ text "Game Paused!" ]
+                        , p [] [ text "Use a,d and w,s to change direction" ]
+                        ]
+                   ]
 
 
 renderGame : List (Html.Attribute Action) -> GameStatus -> Game.Size -> Html Action

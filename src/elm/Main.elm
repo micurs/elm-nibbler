@@ -42,9 +42,26 @@ init _ =
 --- Update ----
 
 
+pause : Model -> Model
+pause m =
+    case m.gameStatus of
+        Game.Playing ns ->
+            { m | gameStatus = Game.Pause ns }
+
+        _ ->
+            m
+
+
 play : Maybe Game.Direction -> Model -> Model
 play mdir model =
     case model.gameStatus of
+        Game.Pause ns ->
+            if ns.lifes > 0 then
+                { model | gameStatus = Game.Playing (Game.update mdir ns) }
+
+            else
+                { model | gameStatus = Game.Over ns.score }
+
         Game.Playing ns ->
             if ns.lifes > 0 then
                 { model | gameStatus = Game.Playing (Game.update mdir ns) }
@@ -55,7 +72,7 @@ play mdir model =
         Game.NewGame ->
             { model | gameStatus = Game.Playing (Game.begin model.gameSize) }
 
-        Game.Over _ ->
+        _ ->
             model
 
 
@@ -101,6 +118,9 @@ update action model =
         GameEngine.Start mdir ->
             ( { model | gameStatus = Game.NewGame }, Cmd.none )
 
+        GameEngine.Pause ->
+            ( pause model, Cmd.none )
+
         _ ->
             ( model, Cmd.none )
 
@@ -132,10 +152,13 @@ toDirection k =
     let
         key =
             String.uncons k
+
+        _ =
+            Debug.log "To Direction " key
     in
     case key of
         Just ( 'p', _ ) ->
-            GameEngine.Play (Just Game.Still)
+            GameEngine.Pause
 
         Just ( 'w', _ ) ->
             GameEngine.Play (Just Game.Up)
