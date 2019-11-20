@@ -6,6 +6,8 @@ Nibbler game built in Elm.
 
 This is a simple demo of a game built to learn the basic of Elm.
 
+You can try it online: https://micurs.github.io/elm-nibbler-demo/
+
 ## Build and Run
 
 The app is built using Parcel and the node-elm-compiler.
