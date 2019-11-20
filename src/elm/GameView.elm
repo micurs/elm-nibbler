@@ -1,4 +1,4 @@
-module GameView exposing (renderGame)
+module GameView exposing (renderGame, renderTitle, renderInfo)
 
 import Game exposing (GameStatus)
 import GameEngine exposing (Action)
@@ -141,3 +141,19 @@ renderGame moreAttr gs size =
             ]
             (gameField gs)
         ]
+
+
+renderTitle : GameStatus -> Html Action
+renderTitle gs =
+    div [ class "nibbler-title" ]
+        [ h1 [] [ text (Game.title gs) ] ]
+
+
+renderInfo : GameStatus -> Html Action
+renderInfo gs =
+    div [ class "nibbler-scores" ] (scoreInfo gs)
+
+
+scoreInfo : GameStatus -> List (Html Action)
+scoreInfo gs =
+    List.map (\s -> div [] [ text s ]) (Game.info gs)

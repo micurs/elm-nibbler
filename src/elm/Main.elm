@@ -4,7 +4,7 @@ import Browser
 import Browser.Events exposing (onKeyPress)
 import Game exposing (Direction, GameStatus, rollCoordinates)
 import GameEngine exposing (Action)
-import GameView exposing (renderGame)
+import GameView exposing (renderGame, renderInfo, renderTitle)
 import Html exposing (Html, div, h1, h2, text)
 import Html.Attributes exposing (class, src, style)
 import Html.Events exposing (keyCode, on)
@@ -125,21 +125,15 @@ update action model =
             ( model, Cmd.none )
 
 
-scoreInfo : GameStatus -> List (Html Action)
-scoreInfo gs =
-    List.map (\s -> div [] [ text s ]) (Game.info gs)
-
-
 view : Model -> Html Action
 view model =
     div
         [ class "d-flex flex-column justify-content-center align-content-center"
         , style "height" "100vh"
         ]
-        [ div [ class "nibbler-title" ]
-            [ h1 [] [ text (Game.title model.gameStatus) ] ]
+        [ renderTitle model.gameStatus
         , renderGame [] model.gameStatus model.gameSize
-        , div [ class "nibbler-scores" ] (scoreInfo model.gameStatus)
+        , renderInfo model.gameStatus
         ]
 
 
@@ -152,9 +146,6 @@ toDirection k =
     let
         key =
             String.uncons k
-
-        _ =
-            Debug.log "To Direction " key
     in
     case key of
         Just ( 'p', _ ) ->
@@ -181,7 +172,8 @@ toDirection k =
 
 keyDecoder : Decode.Decoder Action
 keyDecoder =
-    Decode.map toDirection (Decode.field "key" Decode.string)
+    Decode.field "key" Decode.string
+        |> Decode.map toDirection
 
 
 animate : Model -> Sub Action
@@ -214,6 +206,15 @@ placeCheese model =
             Sub.none
 
 
+restart model =
+    case model.gameStatus of
+        Game.Over _ ->
+            Time.every 10000 (\_ -> GameEngine.Start Nothing)
+
+        _ ->
+            Sub.none
+
+
 subscriptions : Model -> Sub Action
 subscriptions model =
     Sub.batch
@@ -221,6 +222,7 @@ subscriptions model =
         , animate model
         , speedUp model
         , placeCheese model
+        , restart model
         ]
 
 
