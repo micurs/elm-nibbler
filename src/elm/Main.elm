@@ -2,15 +2,14 @@ module Main exposing (main)
 
 import Browser
 import Browser.Events exposing (onKeyPress)
-import Game exposing (Direction, GameStatus, rollCoordinates)
+import Game exposing (GameStatus, rollCoordinates)
 import GameEngine exposing (Action)
 import GameView exposing (renderGame, renderInfo, renderTitle)
-import Html exposing (Html, div, h1, h2, text)
-import Html.Attributes exposing (class, src, style)
-import Html.Events exposing (keyCode, on)
+import Html exposing (Html, div)
+import Html.Attributes exposing (class, style)
 import Json.Decode as Decode
 import Random
-import Time exposing (..)
+import Time as Time
 
 
 
@@ -76,15 +75,6 @@ play mdir model =
             model
 
 
-grow n model =
-    case model.gameStatus of
-        Game.Playing ns ->
-            { model | gameStatus = Game.Playing (Game.grow ns n) }
-
-        _ ->
-            model
-
-
 addCheese : Model -> ( Int, Int ) -> Model
 addCheese model cheesePos =
     case model.gameStatus of
@@ -109,13 +99,13 @@ update action model =
         GameEngine.AddCheese pos ->
             ( addCheese model pos, Cmd.none )
 
-        GameEngine.SpeedUp n ->
+        GameEngine.SpeedUp _ ->
             ( { model | speed = model.speed - model.speed * 0.1 }, Cmd.none )
 
         GameEngine.Play mdir ->
             ( play mdir model, Cmd.none )
 
-        GameEngine.Start mdir ->
+        GameEngine.Start _ ->
             ( { model | gameStatus = Game.NewGame }, Cmd.none )
 
         GameEngine.Pause ->
@@ -206,6 +196,7 @@ placeCheese model =
             Sub.none
 
 
+restart : Model -> Sub Action
 restart model =
     case model.gameStatus of
         Game.Over _ ->

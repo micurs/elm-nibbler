@@ -1,9 +1,13 @@
-module GameView exposing (renderGame, renderTitle, renderInfo)
+module GameView exposing
+    ( renderGame
+    , renderInfo
+    , renderTitle
+    )
 
-import Game exposing (GameStatus)
+import Game exposing (GameStatus, NibblerStatus, Position)
 import GameEngine exposing (Action)
-import Html exposing (Html, div, h1, h2, p, text)
-import Html.Attributes exposing (class, src, style)
+import Html exposing (Html, div, h1, p, text)
+import Html.Attributes exposing (class, style)
 
 
 
@@ -20,18 +24,22 @@ styleGridHeight h =
     style "grid-template-row" ("repeat(" ++ String.fromInt h ++ ", 1fr);")
 
 
+styleGridStartX : Int -> Html.Attribute Action
 styleGridStartX x =
     style "grid-column-start" (String.fromInt x)
 
 
+styleGridStartY : Int -> Html.Attribute Action
 styleGridStartY y =
     style "grid-row-start" (String.fromInt y)
 
 
+styleGridEndX : Int -> Html.Attribute Action
 styleGridEndX x =
     style "grid-column-end" (String.fromInt x)
 
 
+styleGridEndY : Int -> Html.Attribute Action
 styleGridEndY y =
     style "grid-row-end" (String.fromInt y)
 
@@ -40,6 +48,7 @@ styleGridEndY y =
 ---- Nibbler HTML elements
 
 
+nibblerBodyCell : Position -> Html Action
 nibblerBodyCell pos =
     div
         [ class "nibbler-cell"
@@ -49,6 +58,7 @@ nibblerBodyCell pos =
         []
 
 
+nibblerHeadCell : Position -> Html Action
 nibblerHeadCell pos =
     div
         [ class "nibbler-cell head"
@@ -82,6 +92,7 @@ nibblerHead nibs =
             []
 
 
+cheeseStar : Maybe Position -> List (Html Action)
 cheeseStar cheesePos =
     case cheesePos of
         Just pos ->
@@ -99,6 +110,7 @@ cheeseStar cheesePos =
             []
 
 
+paintNibbler : NibblerStatus -> List (Html Action)
 paintNibbler ns =
     nibblerHead ns.nibbler ++ nibblerTail ns.nibbler ++ cheeseStar ns.cheese
 

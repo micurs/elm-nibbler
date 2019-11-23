@@ -1,6 +1,7 @@
 module Game exposing
     ( Direction(..)
     , GameStatus(..)
+    , NibblerStatus
     , Position
     , Size
     , addCheese
@@ -16,11 +17,15 @@ import Random
 
 
 type alias Size =
-    { w : Int, h : Int }
+    { w : Int
+    , h : Int
+    }
 
 
 type alias Position =
-    { x : Int, y : Int }
+    { x : Int
+    , y : Int
+    }
 
 
 type Direction
@@ -100,6 +105,7 @@ newLife ns =
     }
 
 
+actualDirection : Direction -> Direction -> Direction
 actualDirection currDir newDir =
     case currDir of
         Still ->
@@ -291,7 +297,7 @@ title x =
         NewGame ->
             "Welcome to Elm-Nibbler! Press the \"w\" to start"
 
-        Over score ->
+        Over _ ->
             "Thank you for playng Elm-Nibbler!"
 
         Playing ns ->
