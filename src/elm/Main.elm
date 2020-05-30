@@ -24,18 +24,6 @@ type alias Model =
 
 
 
----- Init ----
-
-
-init : flags -> ( Model, Cmd Action )
-init _ =
-    ( { gameStatus = Game.NewGame
-      , gameSize = { w = 41, h = 41 }
-      , speed = 200
-      }
-    , Cmd.none
-    )
-
 
 
 --- Update ----
@@ -114,6 +102,8 @@ update action model =
         _ ->
             ( model, Cmd.none )
 
+
+-- View
 
 view : Model -> Html Action
 view model =
@@ -218,7 +208,18 @@ subscriptions model =
 
 
 
----- PROGRAM ----
+---- Init ----
+
+
+init : flags -> ( Model, Cmd Action )
+init _ =
+    ( { gameStatus = Game.NewGame
+      , gameSize = { w = 41, h = 41 }
+      , speed = 200
+      }
+    , Cmd.none
+    )
+
 
 
 main : Program () Model Action
